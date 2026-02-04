@@ -1518,6 +1518,25 @@
             background: var(--gradient-primary);
         }
 
+        .game-choices-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .game-choice-btn.btn-waiter {
+            background: linear-gradient(135deg, #00897B, #26A69A);
+            font-size: 1rem;
+            padding: 14px 12px;
+        }
+
+        .game-choice-btn.btn-bomb {
+            background: linear-gradient(135deg, #E65100, #FF6D00);
+            font-size: 1rem;
+            padding: 14px 12px;
+        }
+
         .game-choice-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
@@ -1692,6 +1711,14 @@
             .game-choice-btn {
                 font-size: 1.1rem;
                 padding: 15px 18px;
+            }
+            .game-choice-btn.btn-waiter,
+            .game-choice-btn.btn-bomb {
+                font-size: 0.9rem;
+                padding: 12px 8px;
+            }
+            .game-choices-4 {
+                gap: 8px;
             }
         }
 
@@ -3258,8 +3285,8 @@
         // Boss 關卡定義
         const gameDays = {
             4: { emoji: '⚔️', title: 'Ser vs Estar 極速挑戰', level: 'serEstar', ready: true },
-            9: { emoji: '🍽️', title: '瘋狂服務生', level: 'waiter', ready: false },
-            14: { emoji: '💣', title: '拆彈填空', level: 'bomb', ready: false }
+            9: { emoji: '🍽️', title: '瘋狂服務生', level: 'waiter', ready: true },
+            14: { emoji: '💣', title: '拆彈填空', level: 'bomb', ready: true }
         };
 
         // Initialize
@@ -5234,23 +5261,57 @@
             { sentence: 'Ellos ___ perdidos.', answer: 'Estar', hint: '他們迷路了', form: 'están' }
         ];
 
+        // ===== Day 10: 瘋狂服務生 =====
+        const waiterQuestions = [
+            { prompt: '我要一杯黑咖啡', answer: 'Un café solo', choices: ['Un café solo', 'Un café con leche', 'Un cortado', 'Un cappuccino'], hint: 'solo = 單獨的 → 黑咖啡' },
+            { prompt: '一杯拿鐵', answer: 'Un café con leche', choices: ['Un café con leche', 'Té verde', 'Zumo de naranja', 'Chocolate caliente'], hint: 'con leche = 加牛奶' },
+            { prompt: '我要薄荷茶', answer: 'Té de menta', choices: ['Té de menta', 'Té verde', 'Té negro', 'Infusión'], hint: 'menta = 薄荷' },
+            { prompt: '一杯柳橙汁', answer: 'Zumo de naranja', choices: ['Zumo de naranja', 'Batido', 'Refresco', 'Agua mineral'], hint: 'zumo = 果汁, naranja = 柳橙' },
+            { prompt: '我要冰淇淋', answer: 'Helado', choices: ['Helado', 'Tarta', 'Flan', 'Churros'], hint: 'helado = 冰的 → 冰淇淋' },
+            { prompt: '一份吉拿棒', answer: 'Churros', choices: ['Churros', 'Pastel', 'Flan', 'Tarta'], hint: 'churros 西班牙經典甜點' },
+            { prompt: '我要內用', answer: 'Para aquí', choices: ['Para aquí', 'Para llevar', 'Un café solo', 'Agua mineral'], hint: 'aquí = 這裡' },
+            { prompt: '一杯礦泉水', answer: 'Agua mineral', choices: ['Agua mineral', 'Refresco', 'Batido', 'Zumo de naranja'], hint: 'agua = 水, mineral = 礦泉' },
+            { prompt: '一塊蛋糕', answer: 'Tarta', choices: ['Tarta', 'Helado', 'Churros', 'Pastel'], hint: 'tarta = 蛋糕/塔' },
+            { prompt: '一杯熱巧克力', answer: 'Chocolate caliente', choices: ['Chocolate caliente', 'Café solo', 'Té negro', 'Batido'], hint: 'caliente = 熱的' }
+        ];
+
+        // ===== Day 15: 拆彈填空 =====
+        const bombQuestions = [
+            { sentence: 'Quiero ___ una mesa para dos.', answer: 'reservar', choices: ['reservar', 'comer', 'pagar', 'beber'], hint: '我想訂兩人的桌位' },
+            { sentence: '¿Qué ___?', answer: 'recomienda', choices: ['recomienda', 'quiere', 'tiene', 'pide'], hint: '你推薦什麼？' },
+            { sentence: '___ picante, por favor.', answer: 'Sin', choices: ['Sin', 'Con', 'Muy', 'Más'], hint: '請不要辣' },
+            { sentence: 'Un café para ___.', answer: 'llevar', choices: ['llevar', 'aquí', 'comer', 'beber'], hint: '一杯咖啡外帶' },
+            { sentence: '¿Cuánto ___?', answer: 'cuesta', choices: ['cuesta', 'tiene', 'vale', 'paga'], hint: '多少錢？' },
+            { sentence: '¿Puedo ___?', answer: 'probármelo', choices: ['probármelo', 'comprarlo', 'verlo', 'tocarlo'], hint: '我可以試穿嗎？' },
+            { sentence: '¿Tiene otra ___?', answer: 'talla', choices: ['talla', 'color', 'marca', 'forma'], hint: '有其他尺寸嗎？' },
+            { sentence: 'Me gusta en ___.', answer: 'azul', choices: ['azul', 'grande', 'barato', 'nuevo'], hint: '我喜歡藍色的' },
+            { sentence: 'No funciona el ___.', answer: 'aire acondicionado', choices: ['aire acondicionado', 'televisor', 'teléfono', 'ascensor'], hint: '冷氣壞了' },
+            { sentence: 'Tengo mucha ___.', answer: 'hambre', choices: ['hambre', 'sed', 'prisa', 'suerte'], hint: '我很餓' }
+        ];
+
         let gameState = {
             questions: [],
             currentIndex: 0,
             streak: 0,
             timer: null,
-            active: false
+            active: false,
+            level: null
         };
 
         const gameOverlay = document.getElementById('gameOverlay');
         const gameCard = document.getElementById('gameCard');
 
         function startGame(level) {
-            if (level !== 'serEstar') return;
-            gameState.questions = [...gameQuestions].sort(() => Math.random() - 0.5);
+            let pool;
+            if (level === 'serEstar') pool = gameQuestions;
+            else if (level === 'waiter') pool = waiterQuestions;
+            else if (level === 'bomb') pool = bombQuestions;
+            else return;
+            gameState.questions = [...pool].sort(() => Math.random() - 0.5);
             gameState.currentIndex = 0;
             gameState.streak = 0;
             gameState.active = true;
+            gameState.level = level;
             gameOverlay.style.display = 'flex';
             renderGameQuestion();
         }
@@ -5262,11 +5323,45 @@
             }
 
             const q = gameState.questions[gameState.currentIndex];
-            const sentenceHtml = q.sentence.replace('___', '<span class="blank">____</span>');
+            const level = gameState.level;
 
             const progressDots = Array.from({ length: 5 }, (_, i) =>
                 `<div class="game-progress-dot ${i < gameState.streak ? 'filled' : ''}">${i < gameState.streak ? '✓' : ''}</div>`
             ).join('');
+
+            let questionHtml = '';
+            let choicesHtml = '';
+
+            if (level === 'serEstar') {
+                const sentenceHtml = q.sentence.replace('___', '<span class="blank">____</span>');
+                questionHtml = `
+                    <div class="game-sentence">${sentenceHtml}</div>
+                    <div class="game-hint">${q.hint}</div>`;
+                choicesHtml = `
+                    <div class="game-choices">
+                        <button class="game-choice-btn btn-ser" onclick="answerGame('Ser')">Ser</button>
+                        <button class="game-choice-btn btn-estar" onclick="answerGame('Estar')">Estar</button>
+                    </div>`;
+            } else if (level === 'waiter') {
+                const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+                questionHtml = `
+                    <div class="game-sentence">🍽️ 客人說：「${q.prompt}」</div>
+                    <div class="game-hint">${q.hint}</div>`;
+                choicesHtml = `
+                    <div class="game-choices-4">
+                        ${shuffled.map(c => `<button class="game-choice-btn btn-waiter" onclick="answerGame('${c.replace(/'/g, "\\'")}')">${c}</button>`).join('')}
+                    </div>`;
+            } else if (level === 'bomb') {
+                const sentenceHtml = q.sentence.replace('___', '<span class="blank">____</span>');
+                const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+                questionHtml = `
+                    <div class="game-sentence">💣 ${sentenceHtml}</div>
+                    <div class="game-hint">${q.hint}</div>`;
+                choicesHtml = `
+                    <div class="game-choices-4">
+                        ${shuffled.map(c => `<button class="game-choice-btn btn-bomb" onclick="answerGame('${c.replace(/'/g, "\\'")}')">${c}</button>`).join('')}
+                    </div>`;
+            }
 
             gameCard.className = 'game-card';
             gameCard.innerHTML = `
@@ -5275,12 +5370,8 @@
                     <button onclick="closeGame()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#999">✕</button>
                 </div>
                 <div class="game-timer-bar"><div class="game-timer-fill" id="gameTimerFill"></div></div>
-                <div class="game-sentence">${sentenceHtml}</div>
-                <div class="game-hint">${q.hint}</div>
-                <div class="game-choices">
-                    <button class="game-choice-btn btn-ser" onclick="answerGame('Ser')">Ser</button>
-                    <button class="game-choice-btn btn-estar" onclick="answerGame('Estar')">Estar</button>
-                </div>
+                ${questionHtml}
+                ${choicesHtml}
                 <div class="game-progress">${progressDots}</div>
                 <div class="game-progress-label">連續答對 ${gameState.streak} / 5</div>
             `;
@@ -5327,7 +5418,7 @@
             if (blankEl) {
                 blankEl.style.color = isCorrect ? 'var(--success)' : 'var(--error)';
                 blankEl.style.borderColor = isCorrect ? 'var(--success)' : 'var(--error)';
-                blankEl.textContent = q.form;
+                blankEl.textContent = q.form || q.answer;
             }
 
             if (isCorrect) {
@@ -5375,7 +5466,7 @@
             if (blankEl) {
                 blankEl.style.color = 'var(--error)';
                 blankEl.style.borderColor = 'var(--error)';
-                blankEl.textContent = q.form;
+                blankEl.textContent = q.form || q.answer;
             }
 
             gameState.streak = 0;
@@ -5393,12 +5484,19 @@
             gameState.active = false;
             clearTimeout(gameState.timer);
 
+            const winMessages = {
+                serEstar: '你已經掌握 Ser 和 Estar 的用法了！',
+                waiter: '你已經是最強服務生了！',
+                bomb: '炸彈已拆除！你的句型超級熟練！'
+            };
+            const winMsg = winMessages[gameState.level] || '恭喜過關！';
+
             if (won) {
                 gameCard.innerHTML = `
                     <div class="game-result">
                         <div class="game-result-icon">🏆</div>
                         <div class="game-result-title">恭喜過關！</div>
-                        <div class="game-result-msg">你已經掌握 Ser 和 Estar 的用法了！<br>連續答對 5 題，太厲害了！</div>
+                        <div class="game-result-msg">${winMsg}<br>連續答對 5 題，太厲害了！</div>
                         <button class="game-result-btn primary" onclick="closeGame()">完成</button>
                     </div>
                 `;
@@ -5408,7 +5506,7 @@
                         <div class="game-result-icon">💪</div>
                         <div class="game-result-title">再試一次！</div>
                         <div class="game-result-msg">10 題用完但未能連續答對 5 題。<br>多練習幾次就能掌握！</div>
-                        <button class="game-result-btn primary" onclick="startGame('serEstar')">再挑戰一次</button>
+                        <button class="game-result-btn primary" onclick="startGame('${gameState.level}')">再挑戰一次</button>
                         <button class="game-result-btn secondary" onclick="closeGame()">返回課程</button>
                     </div>
                 `;
