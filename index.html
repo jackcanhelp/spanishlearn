@@ -3628,11 +3628,10 @@
             }
         }
 
-        // Speech Synthesis - 本地優先，API 備用
+        // Speech Synthesis - 本地優先，Google TTS 備用
         async function speak(text, audioFile) {
             console.log('=== speak() 被調用 ===');
             console.log('文字:', text);
-            console.log('策略: 三層備用（本地 TTS → Google TTS → 引導設定）');
 
             // 檢查音頻是否已解鎖（主要針對手機）
             if (!audioUnlocked && isMobileDevice()) {
@@ -3650,122 +3649,98 @@
             // Chrome 長時間開啟後 speechSynthesis 會卡住，resume() 可喚醒
             try { window.speechSynthesis.resume(); } catch(e) {}
 
+            // 若已確認本地 TTS 不可用，直接跳到 Google TTS
+            if (localTTSAvailable === false) {
+                console.log('⏭️ 本地 TTS 已確認不可用，直接使用 Google TTS');
+                try {
+                    await speakWithGoogleTTS(text);
+                    console.log('✅ Google TTS 成功');
+                } catch(e) {
+                    console.log('❌ Google TTS 也失敗:', e);
+                    showTTSError();
+                }
+                return;
+            }
+
             // 第一層：使用本地 TTS
             console.log('🎯 第一層：嘗試本地 TTS...');
-            speakWithLocalTTS(text)
-                .then(() => {
-                    console.log('✅ 本地 TTS 成功');
-                })
-                .catch(error => {
-                    console.log('❌ 本地 TTS 失敗:', error);
+            try {
+                await speakWithLocalTTS(text);
+                console.log('✅ 本地 TTS 成功');
+                localTTSAvailable = true;
+            } catch(error) {
+                console.log('❌ 本地 TTS 失敗:', error);
+                localTTSAvailable = false;
 
-                    // 第二層：使用 Google TTS
-                    console.log('🎯 第二層：嘗試 Google TTS...');
-                    speakWithGoogleTTS(text)
-                        .then(() => {
-                            console.log('✅ Google TTS 成功');
-                        })
-                        .catch(error => {
-                            console.log('❌ Google TTS 也失敗:', error);
-
-                            // 第三層：顯示錯誤和引導
-                            console.log('❌ 所有 TTS 方案都失敗');
-                            localTTSAvailable = false;
-                            localStorage.setItem('localTTSAvailable', 'false');
-                            showTTSError();
-                        });
-                });
+                // 第二層：使用 Google TTS
+                console.log('🎯 第二層：嘗試 Google TTS...');
+                try {
+                    await speakWithGoogleTTS(text);
+                    console.log('✅ Google TTS 成功');
+                } catch(error2) {
+                    console.log('❌ Google TTS 也失敗:', error2);
+                    showTTSError();
+                }
+            }
         }
         
-        // 使用 Google Translate TTS 播放（備用方案，帶智能記憶）
+        // 使用 Google Translate TTS 播放（備用方案，並行嘗試多個來源）
         function speakWithGoogleTTS(text) {
             return new Promise((resolve, reject) => {
-                console.log('=== Google TTS 播放（智能優化） ===');
+                console.log('=== Google TTS 播放 ===');
                 console.log('文字:', text);
-                
+
                 try {
-                    // Google Translate TTS URL（非官方 API）
-                    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=es&q=${encodeURIComponent(text)}`;
-                    
-                    // 所有備用方案
-                    const allOptions = [
-                        { url: ttsUrl, name: '直接請求', id: 'direct' },
-                        { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(ttsUrl)}`, name: 'AllOrigins', id: 'allorigins' },
-                        { url: `https://corsproxy.io/?${encodeURIComponent(ttsUrl)}`, name: 'CORSProxy', id: 'corsproxy' }
+                    // 用 client=gtx，比 tw-ob 更穩定
+                    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&tl=es&q=${encodeURIComponent(text)}`;
+
+                    // 多個來源並行嘗試，最先成功的勝出
+                    const sources = [
+                        { url: ttsUrl, name: '直接' },
+                        { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(ttsUrl)}`, name: 'AllOrigins' },
+                        { url: `https://corsproxy.io/?${encodeURIComponent(ttsUrl)}`, name: 'CORSProxy' }
                     ];
-                    
-                    // 讀取上次成功的方案
-                    const lastSuccess = localStorage.getItem('googleTTSSuccess');
-                    
-                    // 重新排序：把上次成功的放第一
-                    let urlOptions = [...allOptions];
-                    if (lastSuccess) {
-                        const successIndex = urlOptions.findIndex(opt => opt.id === lastSuccess);
-                        if (successIndex > 0) {
-                            const successOption = urlOptions.splice(successIndex, 1)[0];
-                            urlOptions.unshift(successOption);
-                            console.log(`💡 優先使用上次成功的: ${successOption.name}`);
+
+                    let won = false;
+                    let failCount = 0;
+
+                    function onFail(name) {
+                        failCount++;
+                        console.log(`❌ ${name} 失敗 (${failCount}/${sources.length})`);
+                        if (failCount >= sources.length && !won) {
+                            reject(new Error('所有 Google TTS 來源都失敗'));
                         }
                     }
-                    
-                    let currentIndex = 0;
-                    let resolved = false;
-                    
-                    function tryNextUrl() {
-                        if (resolved) return;
-                        
-                        if (currentIndex >= urlOptions.length) {
-                            console.error('❌ 所有備用方案都失敗');
-                            reject(new Error('所有 TTS 備用方案都失敗'));
-                            return;
-                        }
-                        
-                        const option = urlOptions[currentIndex];
-                        console.log(`🔄 嘗試 ${currentIndex + 1}/${urlOptions.length}: ${option.name}`);
-                        currentIndex++;
-                        
-                        const audio = new Audio(option.url);
-                        audio.playbackRate = speechRate;
-                        
+
+                    sources.forEach(src => {
+                        const audio = new Audio();
+                        audio.preload = 'auto';
+
                         audio.oncanplaythrough = function() {
-                            if (resolved) return;
-                            console.log(`✅ ${option.name} 音檔載入`);
-                            
+                            if (won) return;
                             audio.play()
                                 .then(() => {
-                                    if (resolved) return;
-                                    resolved = true;
-                                    console.log(`✅ ${option.name} 播放成功`);
-                                    
-                                    // 記住成功的方案
-                                    localStorage.setItem('googleTTSSuccess', option.id);
-                                    
+                                    if (won) return;
+                                    won = true;
+                                    audio.playbackRate = speechRate;
+                                    console.log(`✅ ${src.name} 播放成功`);
                                     resolve();
                                 })
-                                .catch(error => {
-                                    if (resolved) return;
-                                    console.log(`❌ ${option.name} 播放失敗`);
-                                    tryNextUrl();
-                                });
+                                .catch(() => onFail(src.name));
                         };
-                        
-                        audio.onerror = function(e) {
-                            if (resolved) return;
-                            console.log(`❌ ${option.name} 載入失敗`);
-                            tryNextUrl();
-                        };
-                        
-                        // 優化：減少超時到 1.5 秒（更快失敗，更快嘗試下一個）
+
+                        audio.onerror = () => onFail(src.name);
+
+                        // 3 秒全域超時
                         setTimeout(() => {
-                            if (!resolved && audio.readyState < 3) {
-                                console.log(`⏱️ ${option.name} 超時`);
-                                tryNextUrl();
+                            if (!won && audio.readyState < 3) {
+                                onFail(src.name + ' 超時');
                             }
-                        }, 1500);
-                    }
-                    
-                    tryNextUrl();
-                    
+                        }, 3000);
+
+                        audio.src = src.url;
+                    });
+
                 } catch (error) {
                     console.error('❌ Google TTS 錯誤:', error);
                     reject(error);
@@ -3819,10 +3794,7 @@
                         clearTimeout(timeout);
                         
                         // 記錄本地 TTS 可用
-                        if (localTTSAvailable === null) {
-                            localTTSAvailable = true;
-                            localStorage.setItem('localTTSAvailable', 'true');
-                        }
+                        localTTSAvailable = true;
                         
                         resolve();
                     };
@@ -4476,13 +4448,14 @@
             }
         }
         
-        // 使用 TTS 播放（原本的 speak 邏輯）
-        // speakWithTTS - 為了向後兼容保留的包裝器
+        // speakWithTTS - 向後兼容包裝器（含 Google TTS 備用）
         function speakWithTTS(text) {
             console.log('=== speakWithTTS (包裝器) ===');
-            // 調用新的 speakWithLocalTTS
             speakWithLocalTTS(text).catch(error => {
-                console.error('TTS 播放失敗:', error);
+                console.log('本地 TTS 失敗，嘗試 Google TTS:', error);
+                speakWithGoogleTTS(text).catch(e => {
+                    console.error('所有 TTS 播放都失敗:', e);
+                });
             });
         }
 
