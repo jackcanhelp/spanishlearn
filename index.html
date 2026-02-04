@@ -3311,6 +3311,9 @@
 
         // Render Lesson Content
         function renderContent() {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
             const dayIndex = select.value;
 
             // Boss 關卡頁面
