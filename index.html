@@ -77,8 +77,17 @@
         /* Header Section */
         .app-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            padding: 0;
             animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .app-title {
@@ -1417,9 +1426,7 @@
 <body>
     <div class="container">
         <header class="app-header">
-            <span class="flag-emoji">🇪🇸</span>
-            <h1 class="app-title">西班牙語速成學院</h1>
-            <p class="app-subtitle">30天從零到實戰對話 | 發音 → 6W問句 → 數字時間 → 生存必備</p>
+            <img src="header-illustration.jpg" alt="西班牙語速成學院" class="header-img">
         </header>
 
         <!-- Lessons Section -->
