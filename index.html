@@ -3753,28 +3753,26 @@
             return new Promise((resolve, reject) => {
                 console.log('=== 本地 TTS 播放 ===');
                 console.log('文字:', text);
-                
+
                 // 檢查語音是否可用
                 if (availableVoices.length === 0) {
                     console.log('語音列表為空，重新載入...');
                     availableVoices = window.speechSynthesis.getVoices();
                 }
-                
-                // 確保有選擇的語音
+
+                // 嘗試選擇語音：優先西班牙語，其次任何可用語音
                 if (!selectedVoice) {
-                    const spanishVoices = availableVoices.filter(voice => 
+                    const spanishVoices = availableVoices.filter(voice =>
                         voice.lang.startsWith('es') || voice.lang.startsWith('ES')
                     );
-                    
                     if (spanishVoices.length > 0) {
                         selectedVoice = spanishVoices[0];
-                        console.log('✅ 自動選擇語音:', selectedVoice.name);
+                        console.log('✅ 自動選擇西班牙語語音:', selectedVoice.name);
                     } else {
-                        reject(new Error('沒有可用的西班牙語語音'));
-                        return;
+                        console.log('⚠️ 無西班牙語語音，嘗試用 lang=es-ES 讓瀏覽器自動處理');
                     }
                 }
-                
+
                 try {
                     const msg = new SpeechSynthesisUtterance();
                     msg.text = text;
@@ -3782,50 +3780,45 @@
                     msg.rate = speechRate;
                     msg.volume = 1.0;
                     msg.pitch = 1.0;
-                    msg.voice = selectedVoice;
-                    
+                    // 有指定語音就用，沒有就讓瀏覽器依 lang 自動選
+                    if (selectedVoice) {
+                        msg.voice = selectedVoice;
+                    }
+
                     let hasStarted = false;
                     let timeout;
-                    
-                    // 成功開始播放
+
                     msg.onstart = function() {
                         console.log('✅ 本地 TTS 開始播放');
                         hasStarted = true;
                         clearTimeout(timeout);
-                        
-                        // 記錄本地 TTS 可用
                         localTTSAvailable = true;
-                        
                         resolve();
                     };
-                    
+
                     msg.onend = function() {
                         console.log('✅ 本地 TTS 播放完成');
                     };
-                    
-                    // 播放錯誤
+
                     msg.onerror = function(event) {
                         console.error('❌ 本地 TTS 錯誤:', event.error);
                         clearTimeout(timeout);
-                        reject(new Error(`TTS error: ${event.error}`));
+                        reject(new Error('TTS error: ' + event.error));
                     };
-                    
+
                     // 超時檢測（2 秒內沒開始視為失敗）
                     timeout = setTimeout(() => {
                         if (!hasStarted) {
-                            console.error('❌ 本地 TTS 超時（2秒未開始播放）');
+                            console.error('❌ 本地 TTS 超時');
                             window.speechSynthesis.cancel();
                             reject(new Error('TTS timeout'));
                         }
                     }, 2000);
-                    
-                    // Chrome 長時間開啟修復：確保 speechSynthesis 未被暫停
-                    try { window.speechSynthesis.resume(); } catch(e) {}
 
-                    // 開始播放
+                    try { window.speechSynthesis.resume(); } catch(e) {}
                     window.speechSynthesis.speak(msg);
                     console.log('✅ 本地 TTS speak() 已執行');
-                    
+
                 } catch (error) {
                     console.error('❌ 本地 TTS 初始化錯誤:', error);
                     reject(error);
@@ -5077,21 +5070,17 @@
                 }
             } else if (voiceSelect) {
                 if (spanishVoices.length === 0) {
-                    console.warn('⚠️ 沒有找到西班牙語語音');
-                    voiceSelect.innerHTML = '<option>無可用的西班牙語語音（請檢查系統設定）</option>';
+                    console.warn('⚠️ 沒有找到西班牙語語音，將使用線上語音');
+                    voiceSelect.innerHTML = '<option>🌐 使用線上語音（自動）</option>';
                 }
             }
-            
+
             return spanishVoices.length > 0;
         }
         
         // 載入語音（某些瀏覽器需要等待）
-        // 從 localStorage 讀取 TTS 狀態
-        const storedTTSStatus = localStorage.getItem('localTTSAvailable');
-        if (storedTTSStatus) {
-            localTTSAvailable = storedTTSStatus === 'true';
-            console.log('從緩存讀取 TTS 狀態:', localTTSAvailable ? '可用' : '不可用');
-        }
+        // 每次重新載入都重新偵測 TTS 狀態（不從 localStorage 讀取舊值）
+        localTTSAvailable = null;
         
         // 多次嘗試載入語音，因為有些設備需要時間
         let voiceLoadAttempts = 0;
