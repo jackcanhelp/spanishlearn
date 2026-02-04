@@ -3129,28 +3129,51 @@
         }
 
         function speakWithGender(text, gender) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 if (!voicesCacheReady) prepareGenderedVoices();
 
                 const voice = gender === 'M' ? cachedMaleVoice : cachedFemaleVoice;
-                const sameVoice = (cachedMaleVoice === cachedFemaleVoice);
 
+                // 沒有任何本地語音：降級用 Google TTS（無法區分性別）
+                if (!voice && !selectedVoice) {
+                    speakWithGoogleTTS(text).then(resolve).catch(resolve);
+                    return;
+                }
+
+                const sameVoice = (cachedMaleVoice === cachedFemaleVoice);
                 const msg = new SpeechSynthesisUtterance(text);
                 msg.lang = 'es-ES';
                 msg.rate = speechRate;
-                msg.voice = voice;
+                msg.voice = voice || selectedVoice;
                 // 同一語音時加大 pitch 差異以區分角色
                 if (sameVoice) {
                     msg.pitch = gender === 'F' ? 1.4 : 0.75;
                 } else {
                     msg.pitch = gender === 'F' ? 1.15 : 0.9;
                 }
-                msg.onend = () => resolve();
-                msg.onerror = (e) => {
-                    console.warn('Dialogue TTS error, resolving anyway:', e);
-                    resolve();
+
+                let resolved = false;
+                const safeResolve = () => {
+                    if (!resolved) { resolved = true; resolve(); }
                 };
-                window.speechSynthesis.speak(msg);
+
+                // 安全超時：避免 onend 永不觸發導致整段對話卡住
+                const maxWait = Math.max(text.length * 300 / speechRate, 4000);
+                const timeout = setTimeout(safeResolve, maxWait);
+
+                msg.onend = () => { clearTimeout(timeout); safeResolve(); };
+                msg.onerror = (e) => {
+                    clearTimeout(timeout);
+                    console.warn('本地 TTS 失敗，改用 Google TTS:', e);
+                    speakWithGoogleTTS(text).then(safeResolve).catch(safeResolve);
+                };
+
+                try {
+                    window.speechSynthesis.speak(msg);
+                } catch (e) {
+                    clearTimeout(timeout);
+                    speakWithGoogleTTS(text).then(safeResolve).catch(safeResolve);
+                }
             });
         }
 
@@ -3169,13 +3192,21 @@
             });
         }
 
+        let dialogueResumeTimer = null;
+
         async function playDialogue() {
             const dayData = curriculum[select.value];
             if (!dayData || !dayData.dialogue) return;
 
+            // 手機音頻解鎖檢查
+            if (typeof audioUnlocked !== 'undefined' && !audioUnlocked && typeof isMobileDevice === 'function' && isMobileDevice()) {
+                showAudioUnlockBanner();
+                return;
+            }
+
             const btn = document.getElementById('btnPlayDialogue');
 
-            // If already playing, stop
+            // 已在播放中 → 停止
             if (dialoguePlaying) {
                 stopDialogue();
                 return;
@@ -3187,7 +3218,17 @@
                 btn.classList.add('playing');
             }
 
+            // 先停止其他語音
             window.speechSynthesis.cancel();
+            // Chrome 在 cancel() 後立刻 speak() 會被吃掉，需要短暫延遲
+            await new Promise(r => setTimeout(r, 150));
+
+            // Chrome 15 秒自動暫停修復：定期 resume
+            dialogueResumeTimer = setInterval(() => {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+            }, 5000);
 
             for (let i = 0; i < dayData.dialogue.lines.length; i++) {
                 if (!dialoguePlaying) break;
@@ -3200,6 +3241,7 @@
                 }
             }
 
+            if (dialogueResumeTimer) { clearInterval(dialogueResumeTimer); dialogueResumeTimer = null; }
             dialoguePlaying = false;
             clearHighlights();
             if (btn) {
@@ -3210,6 +3252,7 @@
 
         function stopDialogue() {
             dialoguePlaying = false;
+            if (dialogueResumeTimer) { clearInterval(dialogueResumeTimer); dialogueResumeTimer = null; }
             window.speechSynthesis.cancel();
             clearHighlights();
             const btn = document.getElementById('btnPlayDialogue');
