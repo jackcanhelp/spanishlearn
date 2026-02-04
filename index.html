@@ -3255,12 +3255,29 @@
         let samsungModel = '';
         let ttsGuideShown = false;
 
+        // Boss 關卡定義
+        const gameDays = {
+            4: { emoji: '⚔️', title: 'Ser vs Estar 極速挑戰', level: 'serEstar', ready: true },
+            9: { emoji: '🍽️', title: '瘋狂服務生', level: 'waiter', ready: false },
+            14: { emoji: '💣', title: '拆彈填空', level: 'bomb', ready: false }
+        };
+
         // Initialize
         curriculum.forEach((day, index) => {
             const option = document.createElement('option');
             option.value = index;
             option.text = day.title;
             select.appendChild(option);
+
+            // 在特定 Day 後插入 Boss 關卡選項
+            if (gameDays[index]) {
+                const boss = gameDays[index];
+                const bossOption = document.createElement('option');
+                bossOption.value = 'boss-' + index;
+                bossOption.text = boss.emoji + ' Boss：' + boss.title + (boss.ready ? '' : '（即將開放）');
+                if (!boss.ready) bossOption.disabled = true;
+                select.appendChild(bossOption);
+            }
         });
 
         // Tab Switching
@@ -3268,8 +3285,15 @@
         // Render Lesson Content
         function renderContent() {
             const dayIndex = select.value;
+
+            // Boss 關卡頁面
+            if (typeof dayIndex === 'string' && dayIndex.startsWith('boss-')) {
+                renderBossPage(dayIndex);
+                return;
+            }
+
             const dayData = curriculum[dayIndex];
-            
+
             const percentage = ((parseInt(dayIndex) + 1) / curriculum.length) * 100;
             progressBar.style.width = percentage + "%";
 
@@ -3335,24 +3359,6 @@
             quizDiv.innerHTML = `<button class="btn-quiz-start" onclick="startQuiz()"><span>🧠 開始每日測驗</span></button>`;
             container.appendChild(quizDiv);
 
-            // ===== Boss 關卡按鈕 =====
-            const gameDays = {
-                4: { emoji: '⚔️', title: 'Ser vs Estar 極速挑戰', level: 'serEstar' },
-                9: { emoji: '🍽️', title: '瘋狂服務生', level: 'waiter' },
-                14: { emoji: '💣', title: '拆彈填空', level: 'bomb' }
-            };
-            const gameInfo = gameDays[parseInt(dayIndex)];
-            if (gameInfo) {
-                const gameDiv = document.createElement('div');
-                gameDiv.className = 'quiz-start-area';
-                if (parseInt(dayIndex) === 4) {
-                    gameDiv.innerHTML = `<button class="btn-boss-level" onclick="startGame('${gameInfo.level}')">${gameInfo.emoji} Boss 關卡：${gameInfo.title}</button>`;
-                } else {
-                    gameDiv.innerHTML = `<button class="btn-boss-level" disabled>${gameInfo.emoji} Boss 關卡：${gameInfo.title}（即將開放）</button>`;
-                }
-                container.appendChild(gameDiv);
-            }
-
             // ===== 渲染對話區塊 =====
             if (dayData.dialogue) {
                 const dialogueDiv = document.createElement('div');
@@ -3381,6 +3387,49 @@
                 `;
                 container.appendChild(dialogueDiv);
             }
+        }
+
+        // ===== Boss 關卡頁面 =====
+        function renderBossPage(bossId) {
+            const dayIdx = parseInt(bossId.replace('boss-', ''));
+            const boss = gameDays[dayIdx];
+            if (!boss) return;
+
+            progressBar.style.width = ((dayIdx + 1) / curriculum.length * 100) + '%';
+            container.innerHTML = '';
+
+            const page = document.createElement('div');
+            page.className = 'card';
+            page.style.textAlign = 'center';
+            page.style.padding = '40px 24px';
+
+            if (boss.ready) {
+                page.innerHTML = `
+                    <div style="font-size:4rem;margin-bottom:16px">${boss.emoji}</div>
+                    <h2 style="margin-bottom:8px;color:var(--charcoal)">Boss 關卡</h2>
+                    <h3 style="margin-bottom:16px;color:var(--deep-red)">${boss.title}</h3>
+                    <p style="color:#666;margin-bottom:8px;line-height:1.7">
+                        每題 5 秒限時，需<strong>連續答對 5 題</strong>過關。<br>
+                        答錯或超時會重置連續計數，但不會結束遊戲。<br>
+                        共 10 題，加油！
+                    </p>
+                    <button class="btn-boss-level" onclick="startGame('${boss.level}')" style="margin-top:20px;max-width:360px;display:inline-block">
+                        ${boss.emoji} 開始挑戰
+                    </button>
+                `;
+            } else {
+                page.innerHTML = `
+                    <div style="font-size:4rem;margin-bottom:16px">${boss.emoji}</div>
+                    <h2 style="margin-bottom:8px;color:var(--charcoal)">Boss 關卡</h2>
+                    <h3 style="margin-bottom:16px;color:#999">${boss.title}</h3>
+                    <p style="color:#999;margin-bottom:20px">此關卡即將開放，敬請期待！</p>
+                    <button class="btn-boss-level" disabled style="max-width:360px;display:inline-block">
+                        🔒 即將開放
+                    </button>
+                `;
+            }
+
+            container.appendChild(page);
         }
 
         // ===== 對話播放功能 =====
@@ -3473,6 +3522,7 @@
                 };
 
                 try {
+                    try { window.speechSynthesis.resume(); } catch(e2) {}
                     window.speechSynthesis.speak(msg);
                 } catch (e) {
                     clearTimeout(timeout);
@@ -3579,11 +3629,11 @@
         }
 
         // Speech Synthesis - 本地優先，API 備用
-        function speak(text, audioFile) {
+        async function speak(text, audioFile) {
             console.log('=== speak() 被調用 ===');
             console.log('文字:', text);
             console.log('策略: 三層備用（本地 TTS → Google TTS → 引導設定）');
-            
+
             // 檢查音頻是否已解鎖（主要針對手機）
             if (!audioUnlocked && isMobileDevice()) {
                 console.log('❌ 音頻未解鎖，顯示解鎖橫幅');
@@ -3593,7 +3643,13 @@
 
             // 停止當前播放
             stopCurrentPlayback();
-            
+
+            // Chrome 在 cancel() 後立刻 speak() 會被吞掉，需要短暫延遲
+            await new Promise(r => setTimeout(r, 150));
+
+            // Chrome 長時間開啟後 speechSynthesis 會卡住，resume() 可喚醒
+            try { window.speechSynthesis.resume(); } catch(e) {}
+
             // 第一層：使用本地 TTS
             console.log('🎯 第一層：嘗試本地 TTS...');
             speakWithLocalTTS(text)
@@ -3602,17 +3658,16 @@
                 })
                 .catch(error => {
                     console.log('❌ 本地 TTS 失敗:', error);
-                    
+
                     // 第二層：使用 Google TTS
                     console.log('🎯 第二層：嘗試 Google TTS...');
                     speakWithGoogleTTS(text)
                         .then(() => {
                             console.log('✅ Google TTS 成功');
-                            // 可選：顯示提示「目前使用線上語音」
                         })
                         .catch(error => {
                             console.log('❌ Google TTS 也失敗:', error);
-                            
+
                             // 第三層：顯示錯誤和引導
                             console.log('❌ 所有 TTS 方案都失敗');
                             localTTSAvailable = false;
@@ -3792,6 +3847,9 @@
                         }
                     }, 2000);
                     
+                    // Chrome 長時間開啟修復：確保 speechSynthesis 未被暫停
+                    try { window.speechSynthesis.resume(); } catch(e) {}
+
                     // 開始播放
                     window.speechSynthesis.speak(msg);
                     console.log('✅ 本地 TTS speak() 已執行');
@@ -5086,6 +5144,15 @@
         
         // 立即嘗試載入，如果失敗則重試
         tryLoadVoices();
+
+        // Chrome 15 秒自動暫停修復：定期 resume 防止 speechSynthesis 卡住
+        setInterval(() => {
+            try {
+                if (window.speechSynthesis.speaking && window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+            } catch(e) {}
+        }, 5000);
 
         // Initial Render
         renderContent();
