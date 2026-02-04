@@ -1421,6 +1421,280 @@
                 font-size: 0.85rem;
             }
         }
+        /* ===== Ser vs Estar Game ===== */
+        .game-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(12px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .game-card {
+            background: white;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 24px;
+            padding: 35px 30px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .game-timer-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .game-timer-fill {
+            height: 100%;
+            background: var(--gradient-accent);
+            border-radius: 4px;
+            width: 100%;
+            animation: timerShrink 5s linear forwards;
+        }
+
+        .game-sentence {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .game-sentence .blank {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 3px dashed var(--sunset-orange);
+            margin: 0 4px;
+            color: transparent;
+        }
+
+        .game-hint {
+            font-size: 1rem;
+            color: #777;
+            margin-bottom: 28px;
+        }
+
+        .game-choices {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+
+        .game-choice-btn {
+            flex: 1;
+            max-width: 180px;
+            padding: 18px 24px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+        }
+
+        .game-choice-btn.btn-ser {
+            background: var(--gradient-dark);
+        }
+
+        .game-choice-btn.btn-estar {
+            background: var(--gradient-primary);
+        }
+
+        .game-choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .game-choice-btn:active {
+            transform: translateY(0);
+        }
+
+        .game-choice-btn.correct {
+            background: var(--success) !important;
+            animation: none;
+        }
+
+        .game-choice-btn.wrong {
+            background: var(--error) !important;
+            animation: none;
+        }
+
+        .game-choice-btn:disabled {
+            cursor: default;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .game-progress {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .game-progress-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .game-progress-dot.filled {
+            background: var(--success);
+            color: white;
+        }
+
+        .game-progress-label {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .game-status {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .game-result {
+            padding: 20px 0;
+        }
+
+        .game-result-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .game-result-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--charcoal);
+        }
+
+        .game-result-msg {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .game-result-btn {
+            padding: 14px 36px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            margin: 0 6px;
+            transition: all 0.2s ease;
+        }
+
+        .game-result-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .game-result-btn.primary {
+            background: var(--gradient-primary);
+        }
+
+        .game-result-btn.secondary {
+            background: #999;
+        }
+
+        .btn-boss-level {
+            display: block;
+            width: 100%;
+            padding: 18px 24px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            background: linear-gradient(135deg, #7B1FA2 0%, #E91E63 50%, #FF5722 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            box-shadow: 0 6px 25px rgba(123, 31, 162, 0.3);
+            transition: all 0.3s ease;
+            margin-top: 12px;
+        }
+
+        .btn-boss-level:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(123, 31, 162, 0.4);
+        }
+
+        .btn-boss-level:disabled {
+            background: linear-gradient(135deg, #bbb 0%, #999 100%);
+            animation: none;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes timerShrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        @keyframes shakeCard {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-12px); }
+            40% { transform: translateX(12px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+
+        .game-card.shake {
+            animation: shakeCard 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            .game-card {
+                padding: 25px 20px;
+            }
+            .game-sentence {
+                font-size: 1.3rem;
+            }
+            .game-choice-btn {
+                font-size: 1.1rem;
+                padding: 15px 18px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1469,6 +1743,11 @@
     <!-- Quiz Overlay -->
     <div class="quiz-overlay" id="quizOverlay">
         <div class="quiz-card" id="quizCard"></div>
+    </div>
+
+    <!-- Game Overlay -->
+    <div class="game-overlay" id="gameOverlay">
+        <div class="game-card" id="gameCard"></div>
     </div>
 
     <!-- Install Banner -->
@@ -3055,6 +3334,24 @@
             quizDiv.className = 'quiz-start-area';
             quizDiv.innerHTML = `<button class="btn-quiz-start" onclick="startQuiz()"><span>🧠 開始每日測驗</span></button>`;
             container.appendChild(quizDiv);
+
+            // ===== Boss 關卡按鈕 =====
+            const gameDays = {
+                4: { emoji: '⚔️', title: 'Ser vs Estar 極速挑戰', level: 'serEstar' },
+                9: { emoji: '🍽️', title: '瘋狂服務生', level: 'waiter' },
+                14: { emoji: '💣', title: '拆彈填空', level: 'bomb' }
+            };
+            const gameInfo = gameDays[parseInt(dayIndex)];
+            if (gameInfo) {
+                const gameDiv = document.createElement('div');
+                gameDiv.className = 'quiz-start-area';
+                if (parseInt(dayIndex) === 4) {
+                    gameDiv.innerHTML = `<button class="btn-boss-level" onclick="startGame('${gameInfo.level}')">${gameInfo.emoji} Boss 關卡：${gameInfo.title}</button>`;
+                } else {
+                    gameDiv.innerHTML = `<button class="btn-boss-level" disabled>${gameInfo.emoji} Boss 關卡：${gameInfo.title}（即將開放）</button>`;
+                }
+                container.appendChild(gameDiv);
+            }
 
             // ===== 渲染對話區塊 =====
             if (dayData.dialogue) {
@@ -4894,6 +5191,207 @@
                 resultDiv.innerHTML = `<div style="color: #e74c3c; font-weight: bold;">❌ Google TTS 測試失敗</div><div style="color: #aaa; font-size: 10px; margin-top: 5px;">${error.message}</div>`;
             }
         };
+        // ===== Ser vs Estar Game =====
+        const gameQuestions = [
+            { sentence: 'Yo ___ de Taiwán.', answer: 'Ser', hint: '我來自台灣', form: 'soy' },
+            { sentence: 'Ella ___ bonita.', answer: 'Ser', hint: '她很漂亮', form: 'es' },
+            { sentence: 'Él ___ alto.', answer: 'Ser', hint: '他很高', form: 'es' },
+            { sentence: 'Nosotros ___ turistas.', answer: 'Ser', hint: '我們是遊客', form: 'somos' },
+            { sentence: '___ las tres.', answer: 'Ser', hint: '三點了', form: 'Son' },
+            { sentence: 'Yo ___ aquí.', answer: 'Estar', hint: '我在這裡', form: 'estoy' },
+            { sentence: 'Tú ___ cansado.', answer: 'Estar', hint: '你累了', form: 'estás' },
+            { sentence: 'Ella ___ feliz.', answer: 'Estar', hint: '她很開心', form: 'está' },
+            { sentence: 'El museo ___ cerrado.', answer: 'Estar', hint: '博物館關了', form: 'está' },
+            { sentence: 'Ellos ___ perdidos.', answer: 'Estar', hint: '他們迷路了', form: 'están' }
+        ];
+
+        let gameState = {
+            questions: [],
+            currentIndex: 0,
+            streak: 0,
+            timer: null,
+            active: false
+        };
+
+        const gameOverlay = document.getElementById('gameOverlay');
+        const gameCard = document.getElementById('gameCard');
+
+        function startGame(level) {
+            if (level !== 'serEstar') return;
+            gameState.questions = [...gameQuestions].sort(() => Math.random() - 0.5);
+            gameState.currentIndex = 0;
+            gameState.streak = 0;
+            gameState.active = true;
+            gameOverlay.style.display = 'flex';
+            renderGameQuestion();
+        }
+
+        function renderGameQuestion() {
+            if (gameState.currentIndex >= gameState.questions.length) {
+                showGameResult(false);
+                return;
+            }
+
+            const q = gameState.questions[gameState.currentIndex];
+            const sentenceHtml = q.sentence.replace('___', '<span class="blank">____</span>');
+
+            const progressDots = Array.from({ length: 5 }, (_, i) =>
+                `<div class="game-progress-dot ${i < gameState.streak ? 'filled' : ''}">${i < gameState.streak ? '✓' : ''}</div>`
+            ).join('');
+
+            gameCard.className = 'game-card';
+            gameCard.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                    <span style="font-size:0.9rem;color:#999">第 ${gameState.currentIndex + 1} / ${gameState.questions.length} 題</span>
+                    <button onclick="closeGame()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#999">✕</button>
+                </div>
+                <div class="game-timer-bar"><div class="game-timer-fill" id="gameTimerFill"></div></div>
+                <div class="game-sentence">${sentenceHtml}</div>
+                <div class="game-hint">${q.hint}</div>
+                <div class="game-choices">
+                    <button class="game-choice-btn btn-ser" onclick="answerGame('Ser')">Ser</button>
+                    <button class="game-choice-btn btn-estar" onclick="answerGame('Estar')">Estar</button>
+                </div>
+                <div class="game-progress">${progressDots}</div>
+                <div class="game-progress-label">連續答對 ${gameState.streak} / 5</div>
+            `;
+
+            // Reset and start timer
+            clearTimeout(gameState.timer);
+            // Force reflow for animation restart
+            const timerFill = document.getElementById('gameTimerFill');
+            if (timerFill) {
+                timerFill.style.animation = 'none';
+                timerFill.offsetHeight;
+                timerFill.style.animation = 'timerShrink 5s linear forwards';
+            }
+            gameState.timer = setTimeout(() => gameTimeout(), 5000);
+        }
+
+        function answerGame(choice) {
+            if (!gameState.active) return;
+            clearTimeout(gameState.timer);
+
+            const q = gameState.questions[gameState.currentIndex];
+            const isCorrect = choice === q.answer;
+            const buttons = gameCard.querySelectorAll('.game-choice-btn');
+
+            // Stop timer animation
+            const timerFill = document.getElementById('gameTimerFill');
+            if (timerFill) {
+                timerFill.style.animation = 'none';
+                timerFill.style.width = timerFill.getBoundingClientRect().width + 'px';
+            }
+
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.answer) {
+                    btn.classList.add('correct');
+                }
+                if (!isCorrect && btn.textContent === choice) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            // Show correct form
+            const blankEl = gameCard.querySelector('.blank');
+            if (blankEl) {
+                blankEl.style.color = isCorrect ? 'var(--success)' : 'var(--error)';
+                blankEl.style.borderColor = isCorrect ? 'var(--success)' : 'var(--error)';
+                blankEl.textContent = q.form;
+            }
+
+            if (isCorrect) {
+                gameState.streak++;
+                // Update progress dots immediately
+                const dots = gameCard.querySelectorAll('.game-progress-dot');
+                dots.forEach((dot, i) => {
+                    if (i < gameState.streak) {
+                        dot.classList.add('filled');
+                        dot.textContent = '✓';
+                    }
+                });
+                const label = gameCard.querySelector('.game-progress-label');
+                if (label) label.textContent = `連續答對 ${gameState.streak} / 5`;
+
+                if (gameState.streak >= 5) {
+                    setTimeout(() => showGameResult(true), 800);
+                    return;
+                }
+            } else {
+                gameState.streak = 0;
+                gameCard.classList.add('shake');
+                // Reset progress dots
+                const dots = gameCard.querySelectorAll('.game-progress-dot');
+                dots.forEach(dot => { dot.classList.remove('filled'); dot.textContent = ''; });
+                const label = gameCard.querySelector('.game-progress-label');
+                if (label) label.textContent = '連續答對 0 / 5';
+            }
+
+            gameState.currentIndex++;
+            setTimeout(() => renderGameQuestion(), 800);
+        }
+
+        function gameTimeout() {
+            if (!gameState.active) return;
+
+            const q = gameState.questions[gameState.currentIndex];
+            const buttons = gameCard.querySelectorAll('.game-choice-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.answer) btn.classList.add('correct');
+            });
+
+            const blankEl = gameCard.querySelector('.blank');
+            if (blankEl) {
+                blankEl.style.color = 'var(--error)';
+                blankEl.style.borderColor = 'var(--error)';
+                blankEl.textContent = q.form;
+            }
+
+            gameState.streak = 0;
+            gameCard.classList.add('shake');
+            const dots = gameCard.querySelectorAll('.game-progress-dot');
+            dots.forEach(dot => { dot.classList.remove('filled'); dot.textContent = ''; });
+            const label = gameCard.querySelector('.game-progress-label');
+            if (label) label.textContent = '連續答對 0 / 5（超時！）';
+
+            gameState.currentIndex++;
+            setTimeout(() => renderGameQuestion(), 800);
+        }
+
+        function showGameResult(won) {
+            gameState.active = false;
+            clearTimeout(gameState.timer);
+
+            if (won) {
+                gameCard.innerHTML = `
+                    <div class="game-result">
+                        <div class="game-result-icon">🏆</div>
+                        <div class="game-result-title">恭喜過關！</div>
+                        <div class="game-result-msg">你已經掌握 Ser 和 Estar 的用法了！<br>連續答對 5 題，太厲害了！</div>
+                        <button class="game-result-btn primary" onclick="closeGame()">完成</button>
+                    </div>
+                `;
+            } else {
+                gameCard.innerHTML = `
+                    <div class="game-result">
+                        <div class="game-result-icon">💪</div>
+                        <div class="game-result-title">再試一次！</div>
+                        <div class="game-result-msg">10 題用完但未能連續答對 5 題。<br>多練習幾次就能掌握！</div>
+                        <button class="game-result-btn primary" onclick="startGame('serEstar')">再挑戰一次</button>
+                        <button class="game-result-btn secondary" onclick="closeGame()">返回課程</button>
+                    </div>
+                `;
+            }
+        }
+
+        function closeGame() {
+            gameState.active = false;
+            clearTimeout(gameState.timer);
+            gameOverlay.style.display = 'none';
+        }
+
     </script>
 </body>
 </html>
