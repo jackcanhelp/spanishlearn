@@ -3059,7 +3059,7 @@
                         <p class="dialogue-scene">${dayData.dialogue.scene}</p>
                         <div class="dialogue-controls">
                             <button class="btn-play-dialogue" id="btnPlayDialogue" onclick="playDialogue()">▶ 播放對話</button>
-                            <button class="btn-toggle-zh" id="btnToggleZh" onclick="toggleDialogueZh()">👁 顯示中文</button>
+                            <button class="btn-toggle-zh" id="btnToggleZh" onclick="toggleDialogueZh()">🙈 顯示中文</button>
                         </div>
                     </div>
                     <div class="dialogue-lines" id="dialogueLines">
@@ -3226,7 +3226,7 @@
                 el.style.display = dialogueZhVisible ? 'block' : 'none';
             });
             if (btn) {
-                btn.textContent = dialogueZhVisible ? '🙈 隱藏中文' : '👁 顯示中文';
+                btn.textContent = dialogueZhVisible ? '🐵 隱藏中文' : '🙈 顯示中文';
                 btn.classList.toggle('active', dialogueZhVisible);
             }
         }
