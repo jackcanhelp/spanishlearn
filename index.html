@@ -1701,6 +1701,129 @@
             animation: shakeCard 0.5s ease;
         }
 
+        /* ===== Level 4: Taxi Arrow Buttons ===== */
+        .game-taxi-arrows {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 18px;
+        }
+        .game-choice-btn.btn-taxi {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1976D2, #42A5F5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+            padding: 0;
+        }
+        .game-choice-btn.btn-taxi:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4);
+        }
+
+        /* ===== Level 5: Doctor Stickman ===== */
+        .game-stickman-container {
+            width: 200px;
+            height: 320px;
+            position: relative;
+            margin: 16px auto;
+        }
+        .body-hotspot {
+            position: absolute;
+            border: 2px dashed rgba(33, 150, 243, 0.6);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: hotspotGlow 1.5s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: rgba(33, 150, 243, 0.7);
+            background: rgba(33, 150, 243, 0.05);
+        }
+        .body-hotspot:hover {
+            background: rgba(33, 150, 243, 0.15);
+            border-color: #2196F3;
+        }
+        @keyframes hotspotGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(33, 150, 243, 0.2); }
+            50% { box-shadow: 0 0 12px rgba(33, 150, 243, 0.5); }
+        }
+        .body-hotspot.correct {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.15);
+            animation: none;
+        }
+        .body-hotspot.correct::after {
+            content: '🩹';
+            font-size: 1.4rem;
+        }
+        .body-hotspot.wrong {
+            border-color: var(--error);
+            background: rgba(244, 67, 54, 0.15);
+            animation: none;
+        }
+        .body-hotspot.disabled {
+            pointer-events: none;
+            animation: none;
+            opacity: 0.5;
+        }
+
+        /* ===== Level 6: Social Chat ===== */
+        .game-chat-container {
+            margin-top: 12px;
+        }
+        .chat-context {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .chat-bubble-incoming {
+            background: #e8e8e8;
+            color: #333;
+            padding: 12px 18px;
+            border-radius: 18px 18px 18px 4px;
+            max-width: 80%;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            display: inline-block;
+            text-align: left;
+        }
+        .chat-reply-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+        .game-choice-btn.btn-social {
+            background: linear-gradient(135deg, #7B1FA2, #AB47BC);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 18px 18px 4px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            max-width: 85%;
+            text-align: right;
+            box-shadow: 0 3px 12px rgba(123, 31, 162, 0.25);
+        }
+        .game-choice-btn.btn-social:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(123, 31, 162, 0.35);
+        }
+
         @media (max-width: 600px) {
             .game-card {
                 padding: 25px 20px;
@@ -1719,6 +1842,22 @@
             }
             .game-choices-4 {
                 gap: 8px;
+            }
+            .game-choice-btn.btn-taxi {
+                width: 72px;
+                height: 72px;
+                font-size: 1.8rem;
+            }
+            .game-taxi-arrows {
+                gap: 12px;
+            }
+            .game-stickman-container {
+                width: 170px;
+                height: 270px;
+            }
+            .game-choice-btn.btn-social {
+                font-size: 0.9rem;
+                padding: 10px 16px;
             }
         }
 
@@ -3286,7 +3425,10 @@
         const gameDays = {
             4: { emoji: '⚔️', title: 'Ser vs Estar 極速挑戰', level: 'serEstar', ready: true },
             9: { emoji: '🍽️', title: '瘋狂服務生', level: 'waiter', ready: true },
-            14: { emoji: '💣', title: '拆彈填空', level: 'bomb', ready: true }
+            14: { emoji: '💣', title: '拆彈填空', level: 'bomb', ready: true },
+            19: { emoji: '🚕', title: '計程車司機方向反射', level: 'taxi', ready: true },
+            24: { emoji: '🏥', title: '急診醫生', level: 'doctor', ready: true },
+            29: { emoji: '💬', title: '社交達人', level: 'social', ready: true }
         };
 
         // Initialize
@@ -5292,6 +5434,48 @@
             { sentence: 'Tengo mucha ___.', answer: 'hambre', choices: ['hambre', 'sed', 'prisa', 'suerte'], hint: '我很餓' }
         ];
 
+        // ===== Day 20: 計程車司機方向反射 =====
+        const taxiQuestions = [
+            { prompt: '¡Gira a la derecha!', answer: '➡️', hint: 'derecha = 右邊' },
+            { prompt: '¡Sigue todo recto!', answer: '⬆️', hint: 'recto = 直走' },
+            { prompt: '¡A la izquierda en la esquina!', answer: '⬅️', hint: 'izquierda = 左邊' },
+            { prompt: '¡Gira a la izquierda!', answer: '⬅️', hint: 'gira = 轉' },
+            { prompt: '¡Todo recto hasta el semáforo!', answer: '⬆️', hint: 'semáforo = 紅綠燈' },
+            { prompt: '¡A la derecha después del puente!', answer: '➡️', hint: 'puente = 橋' },
+            { prompt: '¡Siga derecho!', answer: '⬆️', hint: 'derecho = 直的' },
+            { prompt: '¡Doble a la izquierda aquí!', answer: '⬅️', hint: 'doble = 轉彎' },
+            { prompt: '¡Tome la derecha!', answer: '➡️', hint: 'tome = 走（命令式）' },
+            { prompt: '¡Recto, por favor!', answer: '⬆️', hint: 'por favor = 拜託' }
+        ];
+
+        // ===== Day 25: 急診醫生 =====
+        const doctorQuestions = [
+            { prompt: 'Me duele la cabeza.', answer: 'cabeza', hint: '我頭痛' },
+            { prompt: 'Me duele el cuello.', answer: 'cuello', hint: '我脖子痛' },
+            { prompt: 'Tengo dolor en el pecho.', answer: 'pecho', hint: '我胸口痛' },
+            { prompt: 'Me duele el estómago.', answer: 'estomago', hint: '我肚子痛' },
+            { prompt: 'Me duele el brazo.', answer: 'brazo', hint: '我手臂痛' },
+            { prompt: 'Me duele la mano.', answer: 'mano', hint: '我手痛' },
+            { prompt: 'Tengo dolor de espalda.', answer: 'espalda', hint: '我背痛' },
+            { prompt: 'Me duele la pierna.', answer: 'pierna', hint: '我腿痛' },
+            { prompt: 'Me duele la rodilla.', answer: 'rodilla', hint: '我膝蓋痛' },
+            { prompt: 'Me duele el pie.', answer: 'pie', hint: '我腳痛' }
+        ];
+
+        // ===== Day 30: 社交達人 =====
+        const socialQuestions = [
+            { incoming: '¡Muchas gracias por tu ayuda!', answer: '¡De nada!', choices: ['¡De nada!', '¡Lo siento!', '¡Adiós!'], hint: 'gracias = 謝謝', context: '有人感謝你的幫忙' },
+            { incoming: 'Lo siento mucho por llegar tarde.', answer: 'No pasa nada.', choices: ['No pasa nada.', 'Gracias.', 'Buenas noches.'], hint: 'lo siento = 對不起', context: '有人遲到道歉' },
+            { incoming: '¡Hola! ¿Qué tal?', answer: '¡Muy bien, gracias!', choices: ['¡Muy bien, gracias!', 'Lo siento.', 'Hasta luego.'], hint: '¿qué tal? = 你好嗎？', context: '朋友跟你打招呼' },
+            { incoming: '¿Puedes ayudarme?', answer: '¡Claro que sí!', choices: ['¡Claro que sí!', '¡Buen provecho!', 'Me llamo Juan.'], hint: '¿puedes ayudarme? = 你能幫我嗎？', context: '有人請求幫忙' },
+            { incoming: '¡Feliz cumpleaños!', answer: '¡Muchas gracias!', choices: ['¡Muchas gracias!', 'Lo siento.', '¿Cuánto cuesta?'], hint: 'feliz cumpleaños = 生日快樂', context: '有人祝你生日快樂' },
+            { incoming: 'Encantado de conocerte.', answer: 'Igualmente.', choices: ['Igualmente.', 'Buenas noches.', '¿Dónde está?'], hint: 'encantado = 很高興認識你', context: '初次見面打招呼' },
+            { incoming: '¿Quieres ir al cine?', answer: '¡Sí, me encantaría!', choices: ['¡Sí, me encantaría!', 'No pasa nada.', 'De nada.'], hint: '¿quieres ir? = 你想去嗎？', context: '朋友邀請你去看電影' },
+            { incoming: 'Nos vemos mañana.', answer: '¡Hasta mañana!', choices: ['¡Hasta mañana!', '¡Buen provecho!', 'Me duele.'], hint: 'mañana = 明天', context: '朋友說明天見' },
+            { incoming: '¡Buen provecho!', answer: '¡Gracias, igualmente!', choices: ['¡Gracias, igualmente!', 'Lo siento.', '¿Qué hora es?'], hint: 'buen provecho = 請慢用', context: '用餐時有人說請慢用' },
+            { incoming: '¿Cómo te llamas?', answer: 'Me llamo...', choices: ['Me llamo...', 'Tengo hambre.', 'Hace calor.'], hint: '¿cómo te llamas? = 你叫什麼名字？', context: '有人問你的名字' }
+        ];
+
         let gameState = {
             questions: [],
             currentIndex: 0,
@@ -5309,6 +5493,9 @@
             if (level === 'serEstar') pool = gameQuestions;
             else if (level === 'waiter') pool = waiterQuestions;
             else if (level === 'bomb') pool = bombQuestions;
+            else if (level === 'taxi') pool = taxiQuestions;
+            else if (level === 'doctor') pool = doctorQuestions;
+            else if (level === 'social') pool = socialQuestions;
             else return;
             gameState.questions = [...pool].sort(() => Math.random() - 0.5);
             gameState.currentIndex = 0;
@@ -5363,6 +5550,53 @@
                 choicesHtml = `
                     <div class="game-choices-4">
                         ${shuffled.map(c => `<button class="game-choice-btn btn-bomb" onclick="answerGame('${c.replace(/'/g, "\\'")}')">${c}</button>`).join('')}
+                    </div>`;
+            } else if (level === 'taxi') {
+                questionHtml = `
+                    <div class="game-sentence">🚕 乘客說：「${q.prompt}」</div>
+                    <div class="game-hint">${q.hint}</div>`;
+                choicesHtml = `
+                    <div class="game-taxi-arrows">
+                        <button class="game-choice-btn btn-taxi" onclick="answerGame('⬅️')">⬅️</button>
+                        <button class="game-choice-btn btn-taxi" onclick="answerGame('⬆️')">⬆️</button>
+                        <button class="game-choice-btn btn-taxi" onclick="answerGame('➡️')">➡️</button>
+                    </div>`;
+            } else if (level === 'doctor') {
+                questionHtml = `
+                    <div class="game-sentence">🏥 病人說：「${q.prompt}」</div>
+                    <div class="game-hint">${q.hint}</div>`;
+                choicesHtml = `
+                    <div class="game-stickman-container">
+                        <svg viewBox="0 0 200 320" width="100%" height="100%" style="position:absolute;top:0;left:0">
+                            <circle cx="100" cy="35" r="25" fill="none" stroke="#555" stroke-width="3"/>
+                            <line x1="100" y1="60" x2="100" y2="180" stroke="#555" stroke-width="3"/>
+                            <line x1="100" y1="90" x2="40" y2="150" stroke="#555" stroke-width="3"/>
+                            <line x1="100" y1="90" x2="160" y2="150" stroke="#555" stroke-width="3"/>
+                            <line x1="100" y1="180" x2="55" y2="280" stroke="#555" stroke-width="3"/>
+                            <line x1="100" y1="180" x2="145" y2="280" stroke="#555" stroke-width="3"/>
+                        </svg>
+                        <div class="body-hotspot" data-part="cabeza" onclick="answerDoctor('cabeza')" style="left:70px;top:5px;width:60px;height:55px;border-radius:50%"></div>
+                        <div class="body-hotspot" data-part="cuello" onclick="answerDoctor('cuello')" style="left:82px;top:58px;width:36px;height:25px"></div>
+                        <div class="body-hotspot" data-part="pecho" onclick="answerDoctor('pecho')" style="left:72px;top:83px;width:56px;height:45px"></div>
+                        <div class="body-hotspot" data-part="estomago" onclick="answerDoctor('estomago')" style="left:76px;top:128px;width:48px;height:40px"></div>
+                        <div class="body-hotspot" data-part="brazo" onclick="answerDoctor('brazo')" style="left:130px;top:90px;width:40px;height:55px;transform:rotate(-30deg)"></div>
+                        <div class="body-hotspot" data-part="mano" onclick="answerDoctor('mano')" style="left:145px;top:138px;width:30px;height:30px;border-radius:50%"></div>
+                        <div class="body-hotspot" data-part="espalda" onclick="answerDoctor('espalda')" style="left:30px;top:90px;width:40px;height:55px;transform:rotate(30deg)"></div>
+                        <div class="body-hotspot" data-part="pierna" onclick="answerDoctor('pierna')" style="left:108px;top:190px;width:35px;height:60px;transform:rotate(-10deg)"></div>
+                        <div class="body-hotspot" data-part="rodilla" onclick="answerDoctor('rodilla')" style="left:115px;top:240px;width:30px;height:30px;border-radius:50%"></div>
+                        <div class="body-hotspot" data-part="pie" onclick="answerDoctor('pie')" style="left:125px;top:270px;width:35px;height:25px"></div>
+                    </div>`;
+            } else if (level === 'social') {
+                const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+                questionHtml = `
+                    <div class="game-chat-container">
+                        <div class="chat-context">💬 ${q.context}</div>
+                        <div><div class="chat-bubble-incoming">${q.incoming}</div></div>
+                        <div class="game-hint">${q.hint}</div>
+                    </div>`;
+                choicesHtml = `
+                    <div class="chat-reply-area">
+                        ${shuffled.map(c => `<button class="game-choice-btn btn-social" onclick="answerGame('${c.replace(/'/g, "\\'")}')">${c}</button>`).join('')}
                     </div>`;
             }
 
@@ -5455,10 +5689,81 @@
             setTimeout(() => renderGameQuestion(), 800);
         }
 
+        function answerDoctor(part) {
+            if (!gameState.active) return;
+            clearTimeout(gameState.timer);
+
+            const q = gameState.questions[gameState.currentIndex];
+            const isCorrect = part === q.answer;
+
+            // Stop timer animation
+            const timerFill = document.getElementById('gameTimerFill');
+            if (timerFill) {
+                timerFill.style.animation = 'none';
+                timerFill.style.width = timerFill.getBoundingClientRect().width + 'px';
+            }
+
+            // Disable all hotspots
+            const hotspots = gameCard.querySelectorAll('.body-hotspot');
+            hotspots.forEach(hs => {
+                hs.style.pointerEvents = 'none';
+                hs.classList.remove('glow');
+                hs.style.animation = 'none';
+                if (hs.dataset.part === q.answer) {
+                    hs.classList.add('correct');
+                }
+                if (!isCorrect && hs.dataset.part === part) {
+                    hs.classList.add('wrong');
+                }
+            });
+
+            if (isCorrect) {
+                gameState.streak++;
+                const dots = gameCard.querySelectorAll('.game-progress-dot');
+                dots.forEach((dot, i) => {
+                    if (i < gameState.streak) {
+                        dot.classList.add('filled');
+                        dot.textContent = '✓';
+                    }
+                });
+                const label = gameCard.querySelector('.game-progress-label');
+                if (label) label.textContent = `連續答對 ${gameState.streak} / 5`;
+
+                if (gameState.streak >= 5) {
+                    setTimeout(() => showGameResult(true), 800);
+                    return;
+                }
+            } else {
+                gameState.streak = 0;
+                gameCard.classList.add('shake');
+                const dots = gameCard.querySelectorAll('.game-progress-dot');
+                dots.forEach(dot => { dot.classList.remove('filled'); dot.textContent = ''; });
+                const label = gameCard.querySelector('.game-progress-label');
+                if (label) label.textContent = '連續答對 0 / 5';
+            }
+
+            gameState.currentIndex++;
+            setTimeout(() => renderGameQuestion(), 800);
+        }
+
         function gameTimeout() {
             if (!gameState.active) return;
 
             const q = gameState.questions[gameState.currentIndex];
+
+            // Handle doctor level hotspots
+            if (gameState.level === 'doctor') {
+                const hotspots = gameCard.querySelectorAll('.body-hotspot');
+                hotspots.forEach(hs => {
+                    hs.style.pointerEvents = 'none';
+                    hs.style.animation = 'none';
+                    if (hs.dataset.part === q.answer) {
+                        hs.classList.add('correct');
+                    }
+                });
+            }
+
+            // Handle regular button levels
             const buttons = gameCard.querySelectorAll('.game-choice-btn');
             buttons.forEach(btn => {
                 btn.disabled = true;
@@ -5490,7 +5795,10 @@
             const winMessages = {
                 serEstar: '你已經掌握 Ser 和 Estar 的用法了！',
                 waiter: '你已經是最強服務生了！',
-                bomb: '炸彈已拆除！你的句型超級熟練！'
+                bomb: '炸彈已拆除！你的句型超級熟練！',
+                taxi: '你已經是最可靠的計程車司機了！方向感滿分！',
+                doctor: '你已經是合格的急診醫生了！身體部位全掌握！',
+                social: '你已經是社交達人了！西班牙語對話毫無障礙！'
             };
             const winMsg = winMessages[gameState.level] || '恭喜過關！';
 
